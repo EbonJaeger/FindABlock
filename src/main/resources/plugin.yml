@@ -1,0 +1,23 @@
+main: me.gnat008.findablock.FindABlockPlugin
+version: 1.0.1
+name: FindABlock
+author: Gnat008
+
+commands:
+  findablock:
+    description: View information and commands related to the FindABlock plugin.
+    aliases: [fab]
+
+permissions:
+  findablock.*:
+    default: op
+    children:
+      findablock.set: true
+      findablock.reload: true
+      findablock.remove: true
+  findablock.set:
+    default: false
+  findablock.reload:
+    default: false
+  findablock.remove:
+    default: false
