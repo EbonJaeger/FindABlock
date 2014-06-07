@@ -2,6 +2,7 @@ package me.gnat008.findablock.listeners;
 
 import me.gnat008.findablock.FindABlockPlugin;
 import me.gnat008.findablock.configuration.YAMLConfig;
+import me.gnat008.findablock.util.Printer;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
@@ -21,12 +22,14 @@ import java.util.List;
 public class PlayerInteractListener implements Listener {
 
     private FindABlockPlugin plugin;
+    private Printer printer;
     private YAMLConfig blocksConfig;
     private YAMLConfig mainConfig;
     private YAMLConfig playersConfig;
 
     public PlayerInteractListener() {
         this.plugin = FindABlockPlugin.getInstance();
+        this.printer = plugin.getPrinter();
         this.blocksConfig = plugin.getBlocksConfig();
         this.mainConfig = plugin.getMainConfig();
         this.playersConfig = plugin.getPlayersConfig();
@@ -64,7 +67,7 @@ public class PlayerInteractListener implements Listener {
                             // Check if the player log file contains the player and block data; if no, add it to the file
                             if (!(playersConfig.getBoolean("players." + uuid + "." + material.toString().toUpperCase() +
                                     "." + blockName))) {
-                                player.sendMessage(ChatColor.GREEN + "You have found a hidden block!");
+                                printer.printToPlayer(player, "You have found a hidden block!", false);
 
                                 playersConfig.set("players." + uuid + "." + material.toString().toUpperCase() +
                                         "." + blockName, true);
@@ -101,16 +104,17 @@ public class PlayerInteractListener implements Listener {
 
                                             player.getInventory().addItem(reward);
                                         } catch (NumberFormatException ex) {
-                                            player.sendMessage(ChatColor.RED + "An error occured while giving reward! Please notify a server administrator!");
+                                            printer.printToPlayer(player, "An error has occurred while giving reward! " +
+                                                    "Please notify a server administrator!", true);
 
-                                            plugin.logger.info("Incorrect item format '" + item + "', skipping!");
+                                            printer.printToConsole("Incorrect item format '" + item + "', skipping!", false);
                                         }
                                     }
 
-                                    player.sendMessage(ChatColor.GREEN + "Congratulations, you found all blocks of this type!");
+                                    printer.printToPlayer(player, "Congratulations, you found all blocks of this type!", false);
                                 }
                             } else {
-                                player.sendMessage(ChatColor.RED + "You have already found a " + ChatColor.WHITE + blockName + ChatColor.RED + "!");
+                                printer.printToPlayer(player, "You have already found a " + ChatColor.WHITE + blockName + ChatColor.RED + "!", true);
                             }
                         }
                     }
@@ -132,7 +136,7 @@ public class PlayerInteractListener implements Listener {
                             // Check if the player log file contains the player and block data; if no, add it to the file
                             if (!(playersConfig.getBoolean("players." + uuid + "." + material.toString().toUpperCase() +
                                     "." + blockName))) {
-                                player.sendMessage(ChatColor.GREEN + "You have found a hidden block!");
+                                printer.printToPlayer(player, "You have found a hidden block!", false);
 
                                 playersConfig.set("players." + uuid + "." + material.toString().toUpperCase() + "." + blockName, true);
                                 playersConfig.saveConfig();
@@ -168,16 +172,17 @@ public class PlayerInteractListener implements Listener {
 
                                             player.getInventory().addItem(reward);
                                         } catch (NumberFormatException ex) {
-                                            player.sendMessage(ChatColor.RED + "An error occured while giving reward! Please notify a server administrator!");
+                                            printer.printToPlayer(player, "An error has occurred while giving reward! " +
+                                                    "Please notify a server administrator!", true);
 
-                                            plugin.logger.info("Incorrect item format '" + item + "', skipping!");
+                                            printer.printToConsole("Incorrect item format '" + item + "', skipping!", false);
                                         }
                                     }
 
-                                    player.sendMessage(ChatColor.GREEN + "Congratulations, you found all blocks of this type!");
+                                    printer.printToPlayer(player, "Congratulations, you found all blocks of this type!", false);
                                 }
                             } else {
-                                player.sendMessage(ChatColor.RED + "You have already found a " + ChatColor.WHITE + blockName + ChatColor.RED + "!");
+                                printer.printToPlayer(player, "You have already found a " + ChatColor.WHITE + blockName + ChatColor.RED + "!", true);
                             }
                         }
                     }

@@ -2,6 +2,7 @@ package me.gnat008.findablock.commands;
 
 import me.gnat008.findablock.FindABlockPlugin;
 import me.gnat008.findablock.configuration.YAMLConfig;
+import me.gnat008.findablock.util.Printer;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,6 +21,7 @@ import java.util.logging.Level;
 public class FindABlockCommand implements CommandExecutor {
 
     private FindABlockPlugin plugin;
+    private Printer printer;
     private YAMLConfig blocksConfig;
     private YAMLConfig mainConfig;
     private YAMLConfig playersConfig;
@@ -34,6 +36,7 @@ public class FindABlockCommand implements CommandExecutor {
 
     public FindABlockCommand() {
         this.plugin = FindABlockPlugin.getInstance();
+        this.printer = plugin.getPrinter();
         this.blocksConfig = plugin.getBlocksConfig();
         this.mainConfig = plugin.getMainConfig();
         this.playersConfig = plugin.getPlayersConfig();
@@ -74,7 +77,7 @@ public class FindABlockCommand implements CommandExecutor {
 
         // Check if the player has permission to use the command; Cancel if no
         if (!plugin.hasPermission(player, args[0]) && !args[0].equalsIgnoreCase("help")) {
-            player.sendMessage(ChatColor.DARK_RED + "You do not have permission to do that.");
+            printer.printToPlayer(player, "You do not have permission to do that.", true);
             return true;
         }
 
@@ -101,12 +104,12 @@ public class FindABlockCommand implements CommandExecutor {
                     set(player, args[1]);
                     return true;
                 } else if (mainConfig.getBoolean("blocks." + args[1].toLowerCase() + ".enabled", false)) {
-                    player.sendMessage(ChatColor.RED + "Block set " + ChatColor.WHITE + args[1].toLowerCase() +
-                            ChatColor.RED + " is not enabled!");
+                    printer.printToPlayer(player, "Block set " + ChatColor.WHITE + args[1].toLowerCase() +
+                            ChatColor.RED + " is not enabled!", true);
                     return true;
                 } else {
-                    player.sendMessage(ChatColor.RED + "Invalid block set " + ChatColor.WHITE + args[1].toLowerCase() +
-                            ChatColor.RED + ", please check your spelling.");
+                    printer.printToPlayer(player, "Invalid block set " + ChatColor.WHITE + args[1].toLowerCase() +
+                            ChatColor.RED + ", please check your spelling.", true);
                     return true;
                 }
 
@@ -120,7 +123,7 @@ public class FindABlockCommand implements CommandExecutor {
                     try {
                         blockSet = Blockset.valueOf(args[1].toUpperCase());
                     } catch (Exception notEnum) {
-                        player.sendMessage(ChatColor.RED + "Invalid argument, please check your spelling.");
+                        printer.printToPlayer(player, "Invalid argument, please check your spelling.", true);
                         return true;
                     }
 
@@ -162,7 +165,7 @@ public class FindABlockCommand implements CommandExecutor {
 
         this.plugin.logger.log(Level.INFO, "[FindABlock] Configuration file reloaded");
         if (player != null) {
-            player.sendMessage(ChatColor.GREEN + "FindABlock configuration reloaded!");
+            printer.printToPlayer(player, "Configuration reloaded!", false);
         }
     }
 
@@ -340,6 +343,11 @@ public class FindABlockCommand implements CommandExecutor {
             playersConfig.reloadConfig();
 
             done = true;
+            if (done) {
+                printer.printToPlayer(player, "Blocks have been removed!", false);
+            } else {
+                printer.printToPlayer(player, "No blocks found to remove.", true);
+            }
         }
 
         if (blocksConfig.contains("blocks.STAINED_CLAY")) {
@@ -405,9 +413,9 @@ public class FindABlockCommand implements CommandExecutor {
         }
 
         if (done) {
-            player.sendMessage(ChatColor.GREEN + "Blocks have been removed!");
+            printer.printToPlayer(player, "Blocks have been removed!", false);
         } else {
-            player.sendMessage(ChatColor.RED + "No blocks found to remove.");
+            printer.printToPlayer(player, "No blocks found to remove.", true);
         }
     }
 }

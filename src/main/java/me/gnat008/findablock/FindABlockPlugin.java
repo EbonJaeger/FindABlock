@@ -7,6 +7,7 @@ import me.gnat008.findablock.configuration.YAMLConfigManager;
 import me.gnat008.findablock.listeners.BlockDestroyListener;
 import me.gnat008.findablock.listeners.BlockPlaceListener;
 import me.gnat008.findablock.listeners.PlayerInteractListener;
+import me.gnat008.findablock.util.Printer;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -16,13 +17,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class FindABlockPlugin extends JavaPlugin {
 
     private static FindABlockPlugin plugin;
 
+    private Printer printer;
     private YAMLConfigManager configManager;
     private YAMLConfig mainConfig;
     private YAMLConfig blocksConfig;
@@ -54,6 +55,7 @@ public class FindABlockPlugin extends JavaPlugin {
 
     public void start() {
         this.plugin = this;
+        this.printer = new Printer(this);
 
         this.logger = getServer().getLogger();
         this.pm = getServer().getPluginManager();
@@ -65,7 +67,8 @@ public class FindABlockPlugin extends JavaPlugin {
         try {
             mainConfig = configManager.getNewConfig("config.yml", header);
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Configuration file 'config.yml' generation failed.", e);
+            printer.printToConsole("Configuration file 'config.yml' generation failed.", true);
+            e.printStackTrace();
         }
 
         config = new FindABlockConfig(mainConfig);
@@ -77,7 +80,8 @@ public class FindABlockPlugin extends JavaPlugin {
             blocksConfig = configManager.getNewConfig("data/blocks.yml", blocksHeader);
             blocksConfig.reloadConfig();
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Configuration file 'blocks.yml' generation failed.", e);
+            printer.printToConsole("Configuration file 'blocks.yml' generation failed.", true);
+            e.printStackTrace();
         }
 
         // Generate the config file where player data is stored
@@ -86,7 +90,8 @@ public class FindABlockPlugin extends JavaPlugin {
             playersConfig = configManager.getNewConfig("data/players.yml", playersHeader);
             playersConfig.reloadConfig();
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Configuration file 'players.yml' generation failed.", e);
+            printer.printToConsole("Configuration file 'players.yml' generation failed.", true);
+            e.printStackTrace();
         }
 
         // Register listener events
@@ -96,11 +101,15 @@ public class FindABlockPlugin extends JavaPlugin {
 
         // Set command executor
         getCommand("findablock").setExecutor(new FindABlockCommand());
-        logger.log(Level.INFO, "[FindABlock] Findablock commands initialized.");
+        printer.printToConsole("Commands initialized.", false);
     }
 
     public static FindABlockPlugin getInstance() {
         return plugin;
+    }
+
+    public Printer getPrinter() {
+        return printer;
     }
 
     public YAMLConfig getMainConfig() {

@@ -2,6 +2,7 @@ package me.gnat008.findablock.listeners;
 
 import me.gnat008.findablock.FindABlockPlugin;
 import me.gnat008.findablock.configuration.YAMLConfig;
+import me.gnat008.findablock.util.Printer;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
@@ -22,10 +23,12 @@ public class BlockPlaceListener implements Listener {
     HashMap<Location, List<String>> data = new HashMap<Location, List<String>>();
 
     private FindABlockPlugin plugin;
+    private Printer printer;
     private YAMLConfig blocksConfig;
 
     public BlockPlaceListener() {
         this.plugin = FindABlockPlugin.getInstance();
+        this.printer = plugin.getPrinter();
         this.blocksConfig = plugin.getBlocksConfig();
     }
 
@@ -64,8 +67,8 @@ public class BlockPlaceListener implements Listener {
                                 blocksConfig.saveConfig();
                                 blocksConfig.reloadConfig();
                             } else {
-                                player.sendMessage(ChatColor.RED + "A " + ChatColor.WHITE + color.toString().toLowerCase() + material.toString().toLowerCase() +
-                                        ChatColor.RED + " was already placed!");
+                                printer.printToPlayer(player, "A " + ChatColor.WHITE + color.toString().toLowerCase() + material.toString().toLowerCase() +
+                                        ChatColor.RED + " was already placed!", true);
                                 event.setCancelled(true);
                             }
                         } else if (material.equals(Material.STAINED_CLAY)) {
@@ -86,8 +89,8 @@ public class BlockPlaceListener implements Listener {
                                 blocksConfig.saveConfig();
                                 blocksConfig.reloadConfig();
                             } else {
-                                player.sendMessage(ChatColor.RED + "A " + ChatColor.WHITE + color.toString().toLowerCase() + material.toString().toLowerCase() +
-                                        ChatColor.RED + " was already placed!");
+                                printer.printToPlayer(player, "A " + ChatColor.WHITE + color.toString().toLowerCase() + material.toString().toLowerCase() +
+                                        ChatColor.RED + " was already placed!", true);
                                 event.setCancelled(true);
                             }
                         }

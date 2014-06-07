@@ -2,6 +2,7 @@ package me.gnat008.findablock.listeners;
 
 import me.gnat008.findablock.FindABlockPlugin;
 import me.gnat008.findablock.configuration.YAMLConfig;
+import me.gnat008.findablock.util.Printer;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -18,11 +19,13 @@ import java.util.List;
 public class BlockDestroyListener implements Listener {
 
     private FindABlockPlugin plugin;
+    private Printer printer;
     private YAMLConfig blocksConfig;
     private YAMLConfig playersConfig;
 
     public BlockDestroyListener() {
         this.plugin = FindABlockPlugin.getInstance();
+        this.printer = plugin.getPrinter();
         this.blocksConfig = plugin.getBlocksConfig();
         this.playersConfig = plugin.getPlayersConfig();
     }
@@ -93,9 +96,9 @@ public class BlockDestroyListener implements Listener {
                                 player.getInventory().addItem(is);
                             }
 
-                            player.sendMessage(ChatColor.DARK_GREEN + "Block has been removed from logs.");
+                            printer.printToPlayer(player, "Block has been removed from logs.", false);
                         } else {
-                            player.sendMessage(ChatColor.RED + "You do not have permission to do that!");
+                            printer.printToPlayer(player, "You do not have permission to do that!", true);
                             event.setCancelled(true);
                         }
                     }
@@ -156,9 +159,9 @@ public class BlockDestroyListener implements Listener {
                                 player.getInventory().addItem(is);
                             }
 
-                            player.sendMessage(ChatColor.DARK_GREEN + "Block has been removed from logs.");
+                            printer.printToPlayer(player, "Block has been removed from logs.", false);
                         } else {
-                            player.sendMessage(ChatColor.RED + "You do not have permission to do that!");
+                            printer.printToPlayer(player, "You do not have permission to do that!", true);
                             event.setCancelled(true);
                         }
                     }
