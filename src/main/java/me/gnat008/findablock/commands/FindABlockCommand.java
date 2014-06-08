@@ -16,14 +16,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 public class FindABlockCommand implements CommandExecutor {
 
     private FindABlockPlugin plugin;
     private Printer printer;
+
     private YAMLConfig blocksConfig;
-    private YAMLConfig mainConfig;
     private YAMLConfig playersConfig;
 
     private PluginDescriptionFile pdf;
@@ -32,13 +31,12 @@ public class FindABlockCommand implements CommandExecutor {
 
     private enum Action {HELP, RELOAD, SET, REMOVE}
 
-    private enum Blockset {ALL, CLAY, WOOL}
+    private enum Blockset {ALL, CLAY, WOOL, GLASS}
 
     public FindABlockCommand() {
         this.plugin = FindABlockPlugin.getInstance();
         this.printer = plugin.getPrinter();
         this.blocksConfig = plugin.getBlocksConfig();
-        this.mainConfig = plugin.getMainConfig();
         this.playersConfig = plugin.getPlayersConfig();
 
         this.pdf = plugin.getDescription();
@@ -97,20 +95,50 @@ public class FindABlockCommand implements CommandExecutor {
                 return true;
 
             case SET:
-                if (args.length < 2 || args.length > 2) {
+                if (args.length != 2) {
                     displayHelp(player);
                     return true;
-                } else if (mainConfig.getBoolean("blocks." + args[1].toLowerCase() + ".enabled", true)) {
-                    set(player, args[1]);
-                    return true;
-                } else if (mainConfig.getBoolean("blocks." + args[1].toLowerCase() + ".enabled", false)) {
-                    printer.printToPlayer(player, "Block set " + ChatColor.WHITE + args[1].toLowerCase() +
-                            ChatColor.RED + " is not enabled!", true);
-                    return true;
-                } else {
+                }
+
+                Blockset set;
+                try {
+                    set = Blockset.valueOf(args[1].toUpperCase());
+                } catch (Exception notEnum) {
                     printer.printToPlayer(player, "Invalid block set " + ChatColor.WHITE + args[1].toLowerCase() +
                             ChatColor.RED + ", please check your spelling.", true);
                     return true;
+                }
+
+                switch (set) {
+                    case WOOL:
+                        if (plugin.getMainConfig().woolEnabled) {
+                            set(player, args[1]);
+                            return true;
+                        } else {
+                            printer.printToPlayer(player, "Block set " + ChatColor.WHITE + args[1].toLowerCase() +
+                                    ChatColor.RED + " is not enabled!", true);
+                            return true;
+                        }
+
+                    case CLAY:
+                        if (plugin.getMainConfig().clayEnabled) {
+                            set(player, args[1]);
+                            return true;
+                        } else {
+                            printer.printToPlayer(player, "Block set " + ChatColor.WHITE + args[1].toLowerCase() +
+                                    ChatColor.RED + " is not enabled!", true);
+                            return true;
+                        }
+
+                    case GLASS:
+                        if (plugin.getMainConfig().glassEnabled) {
+                            set(player, args[1]);
+                            return true;
+                        } else {
+                            printer.printToPlayer(player, "Block set " + ChatColor.WHITE + args[1].toLowerCase() +
+                                    ChatColor.RED + " is not enabled!", true);
+                            return true;
+                        }
                 }
 
             case REMOVE:
@@ -161,9 +189,13 @@ public class FindABlockCommand implements CommandExecutor {
     }
 
     private void reload(Player player) {
-        plugin.getMainConfig().reloadConfig();
+        try {
+            plugin.getMainConfig().load();
+        } catch (Throwable t) {
+            printer.printToConsole("Error while reloading config: " + t.getMessage(), true);
+        }
 
-        this.plugin.logger.log(Level.INFO, "[FindABlock] Configuration file reloaded");
+        printer.printToConsole("Configuration reloaded successfully!", false);
         if (player != null) {
             printer.printToPlayer(player, "Configuration reloaded!", false);
         }
@@ -174,10 +206,10 @@ public class FindABlockCommand implements CommandExecutor {
         Map<Material, Byte> blacklist = new HashMap<Material, Byte>();
 
         if (bSet.equalsIgnoreCase("wool")) {
-            if (!(mainConfig.getStringList("blocks.wool.blacklist").contains(null))) {
-                for (String item : mainConfig.getStringList("blocks.wool.blacklist")) {
-                    String[] blacklistItem = item.split(":", 2);
-                    blacklist.put(Material.valueOf(blacklistItem[0]), Byte.valueOf(blacklistItem[1]));
+            if (plugin.getMainConfig().woolBlacklist.size() < 1) {
+                for (String item : plugin.getMainConfig().woolBlacklist) {
+                    String[] blackListItem = item.split(":", 2);
+                    blacklist.put(Material.valueOf(blackListItem[0]), Byte.valueOf(blackListItem[1]));
                 }
             }
 
