@@ -1,5 +1,13 @@
 package me.gnat008.findablock;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.jar.JarFile;
+import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
 import me.gnat008.findablock.commands.FindABlockCommand;
 import me.gnat008.findablock.configuration.ConfigurationManager;
 import me.gnat008.findablock.configuration.FindABlockConfig;
@@ -14,14 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.*;
-import java.util.jar.JarFile;
-import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-
 public class FindABlockPlugin extends JavaPlugin {
-
-    private static FindABlockPlugin plugin;
 
     private Printer printer;
     private YAMLConfigManager configManager;
@@ -48,12 +49,9 @@ public class FindABlockPlugin extends JavaPlugin {
     }
 
     public void start() {
-        this.plugin = this;
         this.printer = new Printer(this);
-
         this.logger = getServer().getLogger();
         this.pm = getServer().getPluginManager();
-
         this.configManager = new YAMLConfigManager(this);
 
         // Generate the config file where placed blocks get logged
@@ -77,12 +75,12 @@ public class FindABlockPlugin extends JavaPlugin {
         }
 
         // Register listener events
-        pm.registerEvents(new BlockPlaceListener(), this);
-        pm.registerEvents(new PlayerInteractListener(), this);
-        pm.registerEvents(new BlockDestroyListener(), this);
+        pm.registerEvents(new BlockPlaceListener(this), this);
+        pm.registerEvents(new PlayerInteractListener(this), this);
+        pm.registerEvents(new BlockDestroyListener(this), this);
 
         // Set command executor
-        getCommand("findablock").setExecutor(new FindABlockCommand());
+        getCommand("findablock").setExecutor(new FindABlockCommand(this));
         printer.printToConsole("Commands initialized.", false);
 
         // Load the configuration
@@ -92,10 +90,6 @@ public class FindABlockPlugin extends JavaPlugin {
             e.printStackTrace();
             pm.disablePlugin(this);
         }
-    }
-
-    public static FindABlockPlugin getInstance() {
-        return plugin;
     }
 
     public Printer getPrinter() {

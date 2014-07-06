@@ -1,6 +1,10 @@
 package me.gnat008.findablock.listeners;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import me.gnat008.findablock.FindABlockPlugin;
+import me.gnat008.findablock.configuration.ConfigurationManager;
 import me.gnat008.findablock.configuration.YAMLConfig;
 import me.gnat008.findablock.util.Printer;
 import org.bukkit.ChatColor;
@@ -16,22 +20,19 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Wool;
 
-import java.util.HashMap;
-import java.util.List;
-
 public class PlayerInteractListener implements Listener {
 
+    private ConfigurationManager config;
     private FindABlockPlugin plugin;
     private Printer printer;
     private YAMLConfig blocksConfig;
-    private YAMLConfig mainConfig;
     private YAMLConfig playersConfig;
 
-    public PlayerInteractListener() {
-        this.plugin = FindABlockPlugin.getInstance();
+    public PlayerInteractListener(FindABlockPlugin plugin) {
+        this.plugin = plugin;
         this.printer = plugin.getPrinter();
         this.blocksConfig = plugin.getBlocksConfig();
-        this.mainConfig = plugin.getMainConfig();
+        this.config = plugin.getMainConfig();
         this.playersConfig = plugin.getPlayersConfig();
     }
 
@@ -90,7 +91,7 @@ public class PlayerInteractListener implements Listener {
                                 }
 
                                 if (!(found.containsValue(false))) {
-                                    for (String item : mainConfig.getStringList("reward")) {
+                                    for (String item : config.reward) {
                                         String[] rewardData = item.split(":", 2);
 
                                         String rewardType;
@@ -158,12 +159,11 @@ public class PlayerInteractListener implements Listener {
                                 }
 
                                 if (!(found.containsValue(false))) {
-                                    for (String item : mainConfig.getStringList("reward")) {
+                                    for (Iterator<String> it = config.reward.iterator(); it.hasNext();) {
+                                        String item = it.next();
                                         String[] rewardData = item.split(":", 2);
-
                                         String rewardType;
                                         int rewardAmount;
-
                                         try {
                                             rewardType = rewardData[0];
                                             rewardAmount = Integer.parseInt(rewardData[1]);

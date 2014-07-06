@@ -1,9 +1,20 @@
 package me.gnat008.findablock.commands;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import me.gnat008.findablock.FindABlockPlugin;
+import me.gnat008.findablock.configuration.ConfigurationManager;
 import me.gnat008.findablock.configuration.YAMLConfig;
 import me.gnat008.findablock.util.Printer;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,16 +23,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginDescriptionFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class FindABlockCommand implements CommandExecutor {
 
     private FindABlockPlugin plugin;
     private Printer printer;
 
+    private ConfigurationManager config;
     private YAMLConfig blocksConfig;
     private YAMLConfig playersConfig;
 
@@ -33,9 +40,10 @@ public class FindABlockCommand implements CommandExecutor {
 
     private enum Blockset {ALL, CLAY, WOOL, GLASS}
 
-    public FindABlockCommand() {
-        this.plugin = FindABlockPlugin.getInstance();
+    public FindABlockCommand(FindABlockPlugin plugin) {
+        this.plugin = plugin;
         this.printer = plugin.getPrinter();
+        this.config = plugin.getMainConfig();
         this.blocksConfig = plugin.getBlocksConfig();
         this.playersConfig = plugin.getPlayersConfig();
 
@@ -228,8 +236,8 @@ public class FindABlockCommand implements CommandExecutor {
                 }
             }
         } else if (bSet.equalsIgnoreCase("clay")) {
-            if (!(mainConfig.getStringList("blocks.clay.blacklist").contains(null))) {
-                for (String item : mainConfig.getStringList("blocks.clay.blacklist")) {
+            if (!(config.clayBlacklist.contains(null))) {
+                for (String item : config.clayBlacklist) {
                     String[] blacklistItem = item.split(":", 2);
                     blacklist.put(Material.valueOf(blacklistItem[0]), Byte.valueOf(blacklistItem[1]));
                 }

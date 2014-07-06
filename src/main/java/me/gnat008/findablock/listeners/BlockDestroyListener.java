@@ -1,9 +1,17 @@
 package me.gnat008.findablock.listeners;
 
+import java.util.ArrayList;
+import java.util.List;
 import me.gnat008.findablock.FindABlockPlugin;
 import me.gnat008.findablock.configuration.YAMLConfig;
 import me.gnat008.findablock.util.Printer;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,9 +21,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Wool;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class BlockDestroyListener implements Listener {
 
     private FindABlockPlugin plugin;
@@ -23,8 +28,8 @@ public class BlockDestroyListener implements Listener {
     private YAMLConfig blocksConfig;
     private YAMLConfig playersConfig;
 
-    public BlockDestroyListener() {
-        this.plugin = FindABlockPlugin.getInstance();
+    public BlockDestroyListener(FindABlockPlugin plugin) {
+        this.plugin = plugin;
         this.printer = plugin.getPrinter();
         this.blocksConfig = plugin.getBlocksConfig();
         this.playersConfig = plugin.getPlayersConfig();

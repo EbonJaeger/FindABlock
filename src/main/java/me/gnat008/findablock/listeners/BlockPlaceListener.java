@@ -1,5 +1,8 @@
 package me.gnat008.findablock.listeners;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import me.gnat008.findablock.FindABlockPlugin;
 import me.gnat008.findablock.configuration.YAMLConfig;
 import me.gnat008.findablock.util.Printer;
@@ -14,10 +17,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.material.Wool;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 public class BlockPlaceListener implements Listener {
 
     HashMap<Location, List<String>> data = new HashMap<Location, List<String>>();
@@ -26,8 +25,8 @@ public class BlockPlaceListener implements Listener {
     private Printer printer;
     private YAMLConfig blocksConfig;
 
-    public BlockPlaceListener() {
-        this.plugin = FindABlockPlugin.getInstance();
+    public BlockPlaceListener(FindABlockPlugin plugin) {
+        this.plugin = plugin;
         this.printer = plugin.getPrinter();
         this.blocksConfig = plugin.getBlocksConfig();
     }
