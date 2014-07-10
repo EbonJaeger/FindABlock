@@ -9,7 +9,7 @@ import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import me.gnat008.findablock.commands.FindABlockCommand;
-import me.gnat008.findablock.configuration.ConfigurationManager;
+import me.gnat008.findablock.managers.ConfigurationManager;
 import me.gnat008.findablock.configuration.FindABlockConfig;
 import me.gnat008.findablock.configuration.YAMLConfig;
 import me.gnat008.findablock.configuration.YAMLConfigManager;

@@ -1,8 +1,4 @@
-package me.gnat008.findablock.configuration;
-
-import me.gnat008.findablock.FindABlockPlugin;
-import me.gnat008.findablock.util.yaml.YAMLFormat;
-import me.gnat008.findablock.util.yaml.YAMLProcessor;
+package me.gnat008.findablock.managers;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +6,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import me.gnat008.findablock.FindABlockPlugin;
+import me.gnat008.findablock.util.yaml.YAMLFormat;
+import me.gnat008.findablock.util.yaml.YAMLProcessor;
 
 /**
  * Created by Gnat008 on 6/7/2014.
@@ -102,6 +101,6 @@ public class ConfigurationManager {
 
     // Unload the configuration
     public void unload() {
-
+        
     }
 }

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import me.gnat008.findablock.FindABlockPlugin;
-import me.gnat008.findablock.configuration.ConfigurationManager;
+import me.gnat008.findablock.managers.ConfigurationManager;
 import me.gnat008.findablock.configuration.YAMLConfig;
 import me.gnat008.findablock.util.Printer;
 import org.bukkit.Bukkit;
