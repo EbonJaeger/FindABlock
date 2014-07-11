@@ -17,21 +17,15 @@
 
 package me.gnat008.findablock;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.jar.JarFile;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
 import me.gnat008.findablock.commands.FindABlockCommand;
-import me.gnat008.findablock.exceptions.FatalConfigurationLoadingException;
+import me.gnat008.findablock.configuration.ConfigAccessManager;
 import me.gnat008.findablock.listeners.BlockDestroyListener;
 import me.gnat008.findablock.listeners.BlockPlaceListener;
 import me.gnat008.findablock.listeners.PlayerInteractListener;
 import me.gnat008.findablock.managers.BlockManager;
-import me.gnat008.findablock.managers.ConfigurationManager;
 import me.gnat008.findablock.util.Printer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -41,25 +35,32 @@ public class FindABlockPlugin extends JavaPlugin {
 
     private Printer printer;
 
-    private ConfigurationManager configuration;
+    //private ConfigurationManager configuration;
+    private ConfigAccessManager config;
+    private ConfigAccessManager blocksConfig;
+    
+    // Configuration values start
+    public boolean woolEnabled;
+    public List<String> woolBlacklist;
+
+    public boolean clayEnabled;
+    public List<String> clayBlacklist;
+
+    public boolean glassEnabled;
+    public List<String> glassBlacklist;
+
+    public List<String> reward;
+    // Configuration values end
 
     public Logger logger;
     public PluginManager pm;
 
     @Override
     public void onEnable() {
-        start();
-    }
-
-    public boolean hasPermission(Player player, String type) {
-        return player.hasPermission("findablock." + type);
-    }
-
-    public void start() {
         this.printer = new Printer(this);
         this.logger = getServer().getLogger();
         this.pm = getServer().getPluginManager();
-        this.configuration = ConfigurationManager.getInstance(this);
+        //this.configuration = ConfigurationManager.getInstance(this);
 
         // Register listener events
         pm.registerEvents(new BlockPlaceListener(this), this);
@@ -68,84 +69,48 @@ public class FindABlockPlugin extends JavaPlugin {
 
         // Set command executor
         getCommand("findablock").setExecutor(new FindABlockCommand(this));
-
-        // Load the configuration
-        try {
-            configuration.load();
-        } catch (FatalConfigurationLoadingException e) {
-            e.printStackTrace();
-            pm.disablePlugin(this);
-        }
         
-        // Create the data config file
-        /*if (getConfig() == null) {
-            saveDefaultConfig();
-        }*/
+        // Create/load the config files
+        setupConfiguration();
+        this.blocksConfig = new ConfigAccessManager(this, "blocks.yml");
+        blocksConfig.saveConfig();
         
-        
-        // Load data from the config file
+        // Load blocks from the blocks config file
         BlockManager.getManager(this).loadBlocks();
+    }
+
+    public boolean hasPermission(Player player, String type) {
+        return player.hasPermission("findablock." + type);
+    }
+    
+    public ConfigAccessManager getMainConfig() {
+        return this.config;
+    }
+    
+    public ConfigAccessManager getBlocksConfig() {
+        return this.blocksConfig;
     }
 
     public Printer getPrinter() {
         return printer;
     }
-
-    public ConfigurationManager getMainConfig() {
-        return configuration;
-    }
-
-    public void createDefaultConfiguration(File actual, String defaultName) {
-        // Make parent directories.
-        File parent = actual.getParentFile();
-        if (!parent.exists()) {
-            parent.mkdirs();
-        }
-
-        if (actual.exists()) {
-            return;
-        }
-
-        InputStream input = null;
-        try {
-            JarFile file = new JarFile(getFile());
-            ZipEntry copy = file.getEntry("defaults/" + defaultName);
-            if (copy == null) throw new FileNotFoundException();
-            input = file.getInputStream(copy);
-        } catch (IOException e) {
-            logger.severe("Unable to read default configuration: " + defaultName);
-        }
-
-        if (input != null) {
-            FileOutputStream output = null;
-
-            try {
-                output = new FileOutputStream(actual);
-                byte[] buf = new byte[8192];
-                int length;
-
-                while ((length = input.read(buf)) > 0) {
-                    output.write(buf, 0, length);
-                }
-
-                printer.printToConsole("Default configuration written: " + actual.getAbsolutePath(), false);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    input.close();
-                } catch (IOException ignore) {
-
-                }
-
-                try {
-                    if (output != null) {
-                        output.close();
-                    }
-                } catch (IOException ignore) {
-
-                }
-            }
-        }
+    
+    public void setupConfiguration() {
+        this.config = new ConfigAccessManager(this, "config.yml");        
+        config.saveDefaultConfig();
+        
+        // Load the configuration values into memory
+        woolEnabled = config.getConfig().getBoolean("blocks.wool.enabled", true);
+        woolBlacklist = (List<String>) config.getConfig().getList("blocks.wool.blacklist", new ArrayList<String>());
+        clayEnabled = config.getConfig().getBoolean("blocks.clay.enabled", true);
+        clayBlacklist = (List<String>) config.getConfig().getList("blocks.clay.enabled", new ArrayList<String>());
+        glassEnabled = config.getConfig().getBoolean("blocks.glass.enabled", true);
+        glassBlacklist = (List<String>) config.getConfig().getList("blocks.glass.blacklist", new ArrayList<String>());
+        
+        List<String> def = new ArrayList<String>();
+        def.add("IRON_INGOT:32");
+        reward = (List<String>) config.getConfig().getList("reward", def);
+        
+        config.saveConfig();
     }
 }

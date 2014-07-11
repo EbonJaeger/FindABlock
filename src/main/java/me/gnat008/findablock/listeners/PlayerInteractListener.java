@@ -19,7 +19,6 @@ package me.gnat008.findablock.listeners;
 
 import me.gnat008.findablock.FindABlockPlugin;
 import me.gnat008.findablock.managers.BlockManager;
-import me.gnat008.findablock.managers.ConfigurationManager;
 import me.gnat008.findablock.managers.HiddenBlock;
 import me.gnat008.findablock.util.Printer;
 import org.bukkit.ChatColor;
@@ -34,7 +33,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class PlayerInteractListener implements Listener {
 
-    private ConfigurationManager config;
     private FindABlockPlugin plugin;
     private BlockManager blockManager;
     private Printer printer;
@@ -42,7 +40,6 @@ public class PlayerInteractListener implements Listener {
     public PlayerInteractListener(FindABlockPlugin plugin) {
         this.plugin = plugin;
         this.printer = plugin.getPrinter();
-        this.config = plugin.getMainConfig();
         
         this.blockManager = BlockManager.getManager(plugin);
     }

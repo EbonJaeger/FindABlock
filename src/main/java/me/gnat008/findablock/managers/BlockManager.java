@@ -82,14 +82,14 @@ public class BlockManager {
         HiddenBlock hb = new HiddenBlock(id, loc, type);
         hiddenBlocks.add(hb);
         
-        plugin.getConfig().set("Blocks." + id + ".location", serializeLoc(loc));
-        plugin.getConfig().set("Blocks." + id + ".type", type);
-        plugin.getConfig().set("Blocks." + id + ".foundBy", hb.getFoundBy());
+        plugin.getBlocksConfig().getConfig().set("Blocks." + id + ".location", serializeLoc(loc));
+        plugin.getBlocksConfig().getConfig().set("Blocks." + id + ".type", type);
+        plugin.getBlocksConfig().getConfig().set("Blocks." + id + ".foundBy", hb.getFoundBy());
         
-        List<Integer> list = plugin.getConfig().getIntegerList("Blocks.Blocks");
+        List<Integer> list = plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks");
         list.add(id);
-        plugin.getConfig().set("Blocks.Blocks", list);
-        plugin.saveConfig();
+        plugin.getBlocksConfig().getConfig().set("Blocks.Blocks", list);
+        plugin.getBlocksConfig().saveConfig();
         
         return hb;
     }
@@ -105,7 +105,7 @@ public class BlockManager {
         numBlocks++;
         
         HiddenBlock hb = new HiddenBlock(id, loc, loc.getBlock().getType());
-        hb.setFoundBy(plugin.getConfig().getStringList("Blocks." + id + ".foundBy"));
+        hb.setFoundBy(plugin.getBlocksConfig().getConfig().getStringList("Blocks." + id + ".foundBy"));
         hiddenBlocks.add(hb);
         
         return hb;
@@ -133,12 +133,12 @@ public class BlockManager {
         
         hiddenBlocks.remove(hb);
         
-        plugin.getConfig().set("Blocks." + hb.getType(), null);
+        plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getType(), null);
         
-        List<Integer> list = plugin.getConfig().getIntegerList("Blocks.Blocks");
+        List<Integer> list = plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks");
         list.remove(hb.getID());
-        plugin.getConfig().set("Blocks.Blocks", list);
-        plugin.saveConfig();
+        plugin.getBlocksConfig().getConfig().set("Blocks.Blocks", list);
+        plugin.getBlocksConfig().saveConfig();
     }
     
     /**
@@ -155,8 +155,8 @@ public class BlockManager {
         
         hb.addFound(p.getUniqueId().toString());
         
-        plugin.getConfig().set("Blocks." + hb.getType() + ".foundBy", hb.getFoundBy());
-        plugin.saveConfig();
+        plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getType() + ".foundBy", hb.getFoundBy());
+        plugin.getBlocksConfig().saveConfig();
     }
     
     /**
@@ -173,8 +173,8 @@ public class BlockManager {
         
         hb.removeFound(p.getUniqueId().toString());
         
-        plugin.getConfig().set("Blocks." + hb.getType() + ".foundBy", hb.getFoundBy());
-        plugin.saveConfig();
+        plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getType() + ".foundBy", hb.getFoundBy());
+        plugin.getBlocksConfig().saveConfig();
     }
     
     /**
@@ -183,12 +183,12 @@ public class BlockManager {
     public void loadBlocks() {
         numBlocks = 0;
         
-        if (plugin.getConfig().getIntegerList("Blocks.Blocks").isEmpty()) {
+        if (plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks").isEmpty()) {
             return;
         }
         
-        for (int i : plugin.getConfig().getIntegerList("Blocks.Blocks")) {
-            HiddenBlock hb = reloadBlock(deserializeLoc(plugin.getConfig().getString("Blocks." + i + ".location")));
+        for (int i : plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks")) {
+            HiddenBlock hb = reloadBlock(deserializeLoc(plugin.getBlocksConfig().getConfig().getString("Blocks." + i + ".location")));
             hb.setID(i);
         }
     }
