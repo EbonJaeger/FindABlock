@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2014 Gnat008
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package me.gnat008.findablock;
 
 import java.io.File;
@@ -9,8 +26,6 @@ import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import me.gnat008.findablock.commands.FindABlockCommand;
-import me.gnat008.findablock.configuration.FindABlockConfig;
-import me.gnat008.findablock.configuration.YAMLConfigManager;
 import me.gnat008.findablock.exceptions.FatalConfigurationLoadingException;
 import me.gnat008.findablock.listeners.BlockDestroyListener;
 import me.gnat008.findablock.listeners.BlockPlaceListener;
@@ -25,11 +40,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class FindABlockPlugin extends JavaPlugin {
 
     private Printer printer;
-    private YAMLConfigManager configManager;
 
     private ConfigurationManager configuration;
 
-    public FindABlockConfig config;
     public Logger logger;
     public PluginManager pm;
 
@@ -46,7 +59,6 @@ public class FindABlockPlugin extends JavaPlugin {
         this.printer = new Printer(this);
         this.logger = getServer().getLogger();
         this.pm = getServer().getPluginManager();
-        this.configManager = new YAMLConfigManager(this);
         this.configuration = ConfigurationManager.getInstance(this);
 
         // Register listener events
@@ -66,9 +78,10 @@ public class FindABlockPlugin extends JavaPlugin {
         }
         
         // Create the data config file
-        if (getConfig() == null) {
+        /*if (getConfig() == null) {
             saveDefaultConfig();
-        }
+        }*/
+        
         
         // Load data from the config file
         BlockManager.getManager(this).loadBlocks();
