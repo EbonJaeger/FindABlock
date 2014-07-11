@@ -30,6 +30,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class PlayerInteractListener implements Listener {
 
@@ -62,6 +63,38 @@ public class PlayerInteractListener implements Listener {
             HiddenBlock hb = blockManager.getHiddenBlock(location);
             if (!(hb.getFoundBy().contains(player.getUniqueId().toString()))) {
                 hb.addFound(player.getUniqueId().toString());
+                printer.printToPlayer(player, "You have found a hidden block!", false);
+                
+                int numFound = 1;
+                int sameType = 1;
+                for (HiddenBlock ohb : blockManager.getHiddenBlocks()) {
+                    if (ohb.getType() == hb.getType()) {
+                        sameType++;
+                        if (ohb.getFoundBy().contains(player.getUniqueId().toString())) {
+                            numFound++;
+                        }
+                    }
+                }
+                
+                if (numFound == sameType) {
+                    for (String itemRaw : plugin.reward) {
+                        String[] item = itemRaw.split(":");
+                        
+                        try {
+                            String rewardType = item[0];
+                            Integer amount = Integer.parseInt(item[1]);
+                            
+                            ItemStack reward = new ItemStack(Material.valueOf(rewardType), amount);
+                            player.getInventory().addItem(reward);
+                        } catch (NumberFormatException ex) {
+                            printer.printToPlayer(player, "An error occured while handing " +
+                                    "out your reward. Please contact a server administrator!", true);
+                            printer.printToConsole("Incorrect item format '" + item + "', skipping!", true);
+                        }
+                    }
+                    
+                    printer.printToPlayer(player, "Congratulations, you found all blocks of this type!", false);
+                }
             } else {
                 printer.printToPlayer(player, "You already found a " + ChatColor.WHITE + type + ChatColor.RED + "!", true);
             }
