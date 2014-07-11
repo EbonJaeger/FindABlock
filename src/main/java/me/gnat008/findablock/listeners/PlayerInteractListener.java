@@ -1,7 +1,7 @@
 package me.gnat008.findablock.listeners;
 
 import me.gnat008.findablock.FindABlockPlugin;
-import me.gnat008.findablock.blocks.HiddenBlock;
+import me.gnat008.findablock.managers.HiddenBlock;
 import me.gnat008.findablock.managers.BlockManager;
 import me.gnat008.findablock.managers.ConfigurationManager;
 import me.gnat008.findablock.util.Printer;

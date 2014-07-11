@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package me.gnat008.findablock.blocks;
+package me.gnat008.findablock.managers;
 
 import java.util.ArrayList;
 import java.util.List;

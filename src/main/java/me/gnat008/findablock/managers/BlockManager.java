@@ -20,7 +20,6 @@ package me.gnat008.findablock.managers;
 
 import java.util.ArrayList;
 import java.util.List;
-import me.gnat008.findablock.blocks.HiddenBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
