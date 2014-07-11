@@ -22,15 +22,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import me.gnat008.findablock.FindABlockPlugin;
-import me.gnat008.findablock.managers.ConfigurationManager;
+import me.gnat008.findablock.configuration.ConfigAccessManager;
+import me.gnat008.findablock.managers.BlockManager;
+import me.gnat008.findablock.managers.HiddenBlock;
 import me.gnat008.findablock.util.Printer;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -42,9 +40,9 @@ import org.bukkit.plugin.PluginDescriptionFile;
 public class FindABlockCommand implements CommandExecutor {
 
     private FindABlockPlugin plugin;
+    private ConfigAccessManager config;
+    private BlockManager blockManager;
     private Printer printer;
-
-    private ConfigurationManager config;
 
     private PluginDescriptionFile pdf;
     private String version;
@@ -57,10 +55,10 @@ public class FindABlockCommand implements CommandExecutor {
     public FindABlockCommand(FindABlockPlugin plugin) {
         this.plugin = plugin;
         this.printer = plugin.getPrinter();
+        this.blockManager = BlockManager.getManager(plugin);
         this.config = plugin.getMainConfig();
 
         this.pdf = plugin.getDescription();
-
         this.version = pdf.getVersion();
         this.authors = pdf.getAuthors();
     }
@@ -131,7 +129,7 @@ public class FindABlockCommand implements CommandExecutor {
 
                 switch (set) {
                     case WOOL:
-                        if (plugin.getMainConfig().woolEnabled) {
+                        if (plugin.woolEnabled) {
                             set(player, args[1]);
                             return true;
                         } else {
@@ -141,7 +139,7 @@ public class FindABlockCommand implements CommandExecutor {
                         }
 
                     case CLAY:
-                        if (plugin.getMainConfig().clayEnabled) {
+                        if (plugin.clayEnabled) {
                             set(player, args[1]);
                             return true;
                         } else {
@@ -151,7 +149,7 @@ public class FindABlockCommand implements CommandExecutor {
                         }
 
                     case GLASS:
-                        if (plugin.getMainConfig().glassEnabled) {
+                        if (plugin.glassEnabled) {
                             set(player, args[1]);
                             return true;
                         } else {
@@ -181,12 +179,17 @@ public class FindABlockCommand implements CommandExecutor {
                             return true;
 
                         case CLAY:
-                            String bSet = "stained_clay";
+                            String bSet = "clay";
                             remove(player, bSet);
                             return true;
 
                         case WOOL:
                             bSet = "wool";
+                            remove(player, bSet);
+                            return true;
+                            
+                        case GLASS:
+                            bSet = "glass";
                             remove(player, bSet);
                             return true;
                     }
@@ -210,7 +213,7 @@ public class FindABlockCommand implements CommandExecutor {
 
     private void reload(Player player) {
         try {
-            plugin.getMainConfig().load();
+            plugin.getMainConfig().reloadConfig();
         } catch (Throwable t) {
             printer.printToConsole("Error while reloading config: " + t.getMessage(), true);
         }
@@ -226,8 +229,8 @@ public class FindABlockCommand implements CommandExecutor {
         Map<Material, Byte> blacklist = new HashMap<Material, Byte>();
 
         if (bSet.equalsIgnoreCase("wool")) {
-            if (plugin.getMainConfig().woolBlacklist.size() < 1) {
-                for (String item : plugin.getMainConfig().woolBlacklist) {
+            if (plugin.woolBlacklist.size() < 1) {
+                for (String item : plugin.woolBlacklist) {
                     String[] blackListItem = item.split(":", 2);
                     blacklist.put(Material.valueOf(blackListItem[0]), Byte.valueOf(blackListItem[1]));
                 }
@@ -248,8 +251,8 @@ public class FindABlockCommand implements CommandExecutor {
                 }
             }
         } else if (bSet.equalsIgnoreCase("clay")) {
-            if (!(config.clayBlacklist.contains(null))) {
-                for (String item : config.clayBlacklist) {
+            if (!(plugin.clayBlacklist.contains(null))) {
+                for (String item : plugin.clayBlacklist) {
                     String[] blacklistItem = item.split(":", 2);
                     blacklist.put(Material.valueOf(blacklistItem[0]), Byte.valueOf(blacklistItem[1]));
                 }
@@ -271,203 +274,24 @@ public class FindABlockCommand implements CommandExecutor {
             }
         }
     }
-
+    
     private void remove(Player player, String bset) {
-        if (blocksConfig.contains("blocks." + bset.toUpperCase())) {
-            Map<String, World> worldMap = new HashMap<String, World>();
-            Map<String, Double> coordMap = new HashMap<String, Double>();
-
-            for (DyeColor color : DyeColor.values()) {
-                String dyeColor = color.toString().toLowerCase();
-                for (String e : blocksConfig.getStringList("blocks." + bset.toUpperCase() + "." + dyeColor + bset.toLowerCase())) {
-                    if (e != null) {
-                        if (e.contains("world=")) {
-                            e = e.substring(6);
-                            worldMap.put("world", Bukkit.getWorld(e));
-                        } else if (e.contains("x=")) {
-                            e = e.substring(2);
-                            coordMap.put("x", Double.parseDouble(e));
-                        } else if (e.contains("y=")) {
-                            e = e.substring(2);
-                            coordMap.put("y", Double.parseDouble(e));
-                        } else if (e.contains("z=")) {
-                            e = e.substring(2);
-                            coordMap.put("z", Double.parseDouble(e));
-
-                            World world = worldMap.get("world");
-                            double x = coordMap.get("x");
-                            double y = coordMap.get("y");
-                            double z = coordMap.get("z");
-
-                            Location location = new Location(world, x, y, z);
-                            world.getBlockAt(location).setType(Material.AIR);
-
-                            worldMap.clear();
-                            coordMap.clear();
-
-                            blocksConfig.removeKey("blocks." + bset.toUpperCase() + "." + dyeColor + bset.toLowerCase());
-
-                            for (Player p : Bukkit.getOnlinePlayers()) {
-                                if (playersConfig.contains("players." + p.getName())) {
-                                    playersConfig.removeKey("players." + p.getName() + "." + bset.toUpperCase() + "." + dyeColor + bset.toLowerCase());
-                                }
-                            }
-
-                            for (OfflinePlayer p : Bukkit.getOfflinePlayers()) {
-                                if (playersConfig.contains("players." + p.getName())) {
-                                    playersConfig.removeKey("players." + p.getName() + "." + bset.toUpperCase() + "." + dyeColor + bset.toLowerCase());
-                                }
-                            }
-                        }
-                    }
-                }
+        for (HiddenBlock hb : blockManager.getHiddenBlocks()) {
+            if (hb.getType() == Material.valueOf(bset.toUpperCase())) {
+                hb.getLocation().getWorld().getBlockAt(hb.getLocation()).setType(Material.AIR);
+                blockManager.removeBlock(hb.getLocation());
             }
-
-            blocksConfig.removeKey("blocks." + bset.toUpperCase());
-            blocksConfig.saveConfig();
-            blocksConfig.reloadConfig();
-
-            playersConfig.saveConfig();
-            playersConfig.reloadConfig();
-
-            player.sendMessage(ChatColor.GREEN + "Blocks have been removed!");
         }
+        
+        printer.printToPlayer(player, "Blocks have been removed!", false);
     }
-
+    
     private void remove(Player player) {
-        boolean done = false;
-
-        if (blocksConfig.contains("blocks.WOOL")) {
-            Map<String, World> worldMap = new HashMap<String, World>();
-            Map<String, Double> coordMap = new HashMap<String, Double>();
-
-            for (DyeColor color : DyeColor.values()) {
-                String dyeColor = color.toString().toLowerCase();
-                for (String e : blocksConfig.getStringList("blocks.WOOL." + dyeColor + "wool")) {
-                    if (e != null) {
-                        if (e.contains("world=")) {
-                            e = e.substring(6);
-                            worldMap.put("world", Bukkit.getWorld(e));
-                        } else if (e.contains("x=")) {
-                            e = e.substring(2);
-                            coordMap.put("x", Double.parseDouble(e));
-                        } else if (e.contains("y=")) {
-                            e = e.substring(2);
-                            coordMap.put("y", Double.parseDouble(e));
-                        } else if (e.contains("z=")) {
-                            e = e.substring(2);
-                            coordMap.put("z", Double.parseDouble(e));
-
-                            World world = worldMap.get("world");
-                            double x = coordMap.get("x");
-                            double y = coordMap.get("y");
-                            double z = coordMap.get("z");
-
-                            Location location = new Location(world, x, y, z);
-                            world.getBlockAt(location).setType(Material.AIR);
-
-                            worldMap.clear();
-                            coordMap.clear();
-
-                            blocksConfig.removeKey("blocks.WOOL." + dyeColor + "wool");
-
-                            for (Player p : Bukkit.getOnlinePlayers()) {
-                                if (playersConfig.contains("players." + p.getName())) {
-                                    playersConfig.removeKey("players." + p.getName() + ".WOOL." + dyeColor + "wool");
-                                }
-                            }
-
-                            for (OfflinePlayer p : Bukkit.getOfflinePlayers()) {
-                                if (playersConfig.contains("players." + p.getName())) {
-                                    playersConfig.removeKey("players." + p.getName() + ".WOOL." + dyeColor + "wool");
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            blocksConfig.removeKey("blocks.WOOL");
-            blocksConfig.saveConfig();
-            blocksConfig.reloadConfig();
-
-            playersConfig.saveConfig();
-            playersConfig.reloadConfig();
-
-            done = true;
-            if (done) {
-                printer.printToPlayer(player, "Blocks have been removed!", false);
-            } else {
-                printer.printToPlayer(player, "No blocks found to remove.", true);
-            }
+        for (HiddenBlock hb : blockManager.getHiddenBlocks()) {
+            hb.getLocation().getWorld().getBlockAt(hb.getLocation()).setType(Material.AIR);
+            blockManager.removeBlock(hb.getLocation());
         }
-
-        if (blocksConfig.contains("blocks.STAINED_CLAY")) {
-            Map<String, World> worldMap = new HashMap<String, World>();
-            Map<String, Double> coordMap = new HashMap<String, Double>();
-
-            done = false;
-
-            for (DyeColor color : DyeColor.values()) {
-                String dyeColor = color.toString().toLowerCase();
-                for (String e : blocksConfig.getStringList("blocks.STAINED_CLAY." + dyeColor + "stained_clay")) {
-                    if (e != null) {
-                        if (e.contains("world=")) {
-                            e = e.substring(6);
-                            worldMap.put("world", Bukkit.getWorld(e));
-                        } else if (e.contains("x=")) {
-                            e = e.substring(2);
-                            coordMap.put("x", Double.parseDouble(e));
-                        } else if (e.contains("y=")) {
-                            e = e.substring(2);
-                            coordMap.put("y", Double.parseDouble(e));
-                        } else if (e.contains("z=")) {
-                            e = e.substring(2);
-                            coordMap.put("z", Double.parseDouble(e));
-
-                            World world = worldMap.get("world");
-                            double x = coordMap.get("x");
-                            double y = coordMap.get("y");
-                            double z = coordMap.get("z");
-
-                            Location location = new Location(world, x, y, z);
-                            world.getBlockAt(location).setType(Material.AIR);
-
-                            worldMap.clear();
-                            coordMap.clear();
-
-                            blocksConfig.removeKey("blocks.STAINED_CLAY." + dyeColor + "stained_clay");
-
-                            for (Player p : Bukkit.getOnlinePlayers()) {
-                                if (playersConfig.contains("players." + p.getName())) {
-                                    playersConfig.removeKey("players." + p.getName() + ".STAINED_CLAY." + dyeColor + "stained_clay");
-                                }
-                            }
-
-                            for (OfflinePlayer p : Bukkit.getOfflinePlayers()) {
-                                if (playersConfig.contains("players." + p.getName())) {
-                                    playersConfig.removeKey("players." + p.getName() + ".STAINED_CLAY." + dyeColor + "stained_clay");
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            blocksConfig.removeKey("blocks.STAINED_CLAY");
-            blocksConfig.saveConfig();
-            blocksConfig.reloadConfig();
-
-            playersConfig.saveConfig();
-            playersConfig.reloadConfig();
-
-            done = true;
-        }
-
-        if (done) {
-            printer.printToPlayer(player, "Blocks have been removed!", false);
-        } else {
-            printer.printToPlayer(player, "No blocks found to remove.", true);
-        }
+        
+        printer.printToPlayer(player, "All blocks have been removed!", false);
     }
 }
