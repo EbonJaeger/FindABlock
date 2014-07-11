@@ -31,15 +31,26 @@ import org.bukkit.Material;
  */
 public class HiddenBlock {
     
+    private int id;
     private Location location;
     private Material type;    
     private List<String> foundBy;
     
-    public HiddenBlock(Location location, Material type) {
+    public HiddenBlock(int id, Location location, Material type) {
+        this.id = id;
         this.location = location;
         this.type = type;
         
         this.foundBy = new ArrayList<String>();
+    }
+    
+    /**
+     * Get the ID of a block.
+     * 
+     * @return The block's ID.
+     */
+    public int getID() {
+        return this.id;
     }
     
     /**
@@ -82,11 +93,31 @@ public class HiddenBlock {
     }
     
     /**
+     * Sets the list of players who have found the block. Used when reloading
+     * the plugin (server restart).
+     * 
+     * @param uuids The List of player UUIDs to use.
+     */
+    public void setFoundBy(List<String> uuids) {
+        this.foundBy = uuids;
+    }
+    
+    /**
      * Removes a player's UUID from the list of players that have found the block.
      * 
      * @param uuid The UUID String of the player.
      */
     public void removeFound(String uuid) {
         this.foundBy.remove(uuid);
+    }
+    
+    /**
+     * Sets the numerical ID of a block. Used when reloading the plugin (server
+     * restart). Intended to preserve block to ID.
+     * 
+     * @param id The ID of the block.
+     */
+    public void setID(int id) {
+        this.id = id;
     }
 }

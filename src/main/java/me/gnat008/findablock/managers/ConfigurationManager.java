@@ -14,6 +14,8 @@ import me.gnat008.findablock.util.yaml.YAMLProcessor;
  * Created by Gnat008 on 6/7/2014.
  */
 public class ConfigurationManager {
+    
+    private static ConfigurationManager configuration;
 
     private final String CONFIG_HEADER = "# FindABlock's Configuration File\r\n" +
             "#\r\n" +
@@ -48,8 +50,16 @@ public class ConfigurationManager {
     public List<String> reward;
     // Configuration values end
 
-    public ConfigurationManager(FindABlockPlugin plugin) {
+    private ConfigurationManager(FindABlockPlugin plugin) {
         this.plugin = plugin;
+    }
+    
+    public static ConfigurationManager getInstance(FindABlockPlugin plugin) {
+        if (configuration == null) {
+            configuration = new ConfigurationManager(plugin);
+        }
+        
+        return configuration;
     }
 
     // Load the configuration

@@ -9,14 +9,14 @@ import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import me.gnat008.findablock.commands.FindABlockCommand;
-import me.gnat008.findablock.managers.ConfigurationManager;
 import me.gnat008.findablock.configuration.FindABlockConfig;
-import me.gnat008.findablock.configuration.YAMLConfig;
 import me.gnat008.findablock.configuration.YAMLConfigManager;
 import me.gnat008.findablock.exceptions.FatalConfigurationLoadingException;
 import me.gnat008.findablock.listeners.BlockDestroyListener;
 import me.gnat008.findablock.listeners.BlockPlaceListener;
 import me.gnat008.findablock.listeners.PlayerInteractListener;
+import me.gnat008.findablock.managers.BlockManager;
+import me.gnat008.findablock.managers.ConfigurationManager;
 import me.gnat008.findablock.util.Printer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -26,18 +26,12 @@ public class FindABlockPlugin extends JavaPlugin {
 
     private Printer printer;
     private YAMLConfigManager configManager;
-    private YAMLConfig blocksConfig;
-    private YAMLConfig playersConfig;
 
-    private final ConfigurationManager configuration;
+    private ConfigurationManager configuration;
 
     public FindABlockConfig config;
     public Logger logger;
     public PluginManager pm;
-
-    public FindABlockPlugin() {
-        this.configuration = new ConfigurationManager(this);
-    }
 
     @Override
     public void onEnable() {
@@ -53,26 +47,7 @@ public class FindABlockPlugin extends JavaPlugin {
         this.logger = getServer().getLogger();
         this.pm = getServer().getPluginManager();
         this.configManager = new YAMLConfigManager(this);
-
-        // Generate the config file where placed blocks get logged
-        String[] blocksHeader = {"FindABlock Logged Blocks", "---------------------", "When a block from this plugin is placed,", "its type and location are stored here."};
-        try {
-            blocksConfig = configManager.getNewConfig("data/blocks.yml", blocksHeader);
-            blocksConfig.reloadConfig();
-        } catch (Exception e) {
-            printer.printToConsole("Configuration file 'blocks.yml' generation failed.", true);
-            e.printStackTrace();
-        }
-
-        // Generate the config file where player data is stored
-        String[] playersHeader = {"FindABlock Player Data", "---------------------", "Logs when a player finds a hidden block."};
-        try {
-            playersConfig = configManager.getNewConfig("data/players.yml", playersHeader);
-            playersConfig.reloadConfig();
-        } catch (Exception e) {
-            printer.printToConsole("Configuration file 'players.yml' generation failed.", true);
-            e.printStackTrace();
-        }
+        this.configuration = ConfigurationManager.getInstance(this);
 
         // Register listener events
         pm.registerEvents(new BlockPlaceListener(this), this);
@@ -81,7 +56,6 @@ public class FindABlockPlugin extends JavaPlugin {
 
         // Set command executor
         getCommand("findablock").setExecutor(new FindABlockCommand(this));
-        printer.printToConsole("Commands initialized.", false);
 
         // Load the configuration
         try {
@@ -90,6 +64,14 @@ public class FindABlockPlugin extends JavaPlugin {
             e.printStackTrace();
             pm.disablePlugin(this);
         }
+        
+        // Create the data config file
+        if (getConfig() == null) {
+            saveDefaultConfig();
+        }
+        
+        // Load data from the config file
+        BlockManager.getManager(this).loadBlocks();
     }
 
     public Printer getPrinter() {
@@ -98,14 +80,6 @@ public class FindABlockPlugin extends JavaPlugin {
 
     public ConfigurationManager getMainConfig() {
         return configuration;
-    }
-
-    public YAMLConfig getBlocksConfig() {
-        return blocksConfig;
-    }
-
-    public YAMLConfig getPlayersConfig() {
-        return playersConfig;
     }
 
     public void createDefaultConfiguration(File actual, String defaultName) {

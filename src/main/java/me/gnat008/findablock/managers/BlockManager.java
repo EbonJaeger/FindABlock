@@ -20,6 +20,7 @@ package me.gnat008.findablock.managers;
 
 import java.util.ArrayList;
 import java.util.List;
+import me.gnat008.findablock.FindABlockPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,17 +33,20 @@ import org.bukkit.entity.Player;
  */
 public class BlockManager {
     
+    private int numBlocks = 0;
     private List<HiddenBlock> hiddenBlocks = new ArrayList<HiddenBlock>();
     
     private static BlockManager blockManager;
     
-    private BlockManager() {
-        
+    private FindABlockPlugin plugin;
+    
+    private BlockManager(FindABlockPlugin plugin) {
+        this.plugin = plugin;
     }
     
-    public static BlockManager getManager() {
+    public static BlockManager getManager(FindABlockPlugin plugin) {
         if (blockManager == null) {
-            blockManager = new BlockManager();
+            blockManager = new BlockManager(plugin);
         }
         
         return blockManager;
@@ -73,12 +77,20 @@ public class BlockManager {
      * @return The created Hidden Block.
      */
     public HiddenBlock createBlock(Location loc, Material type) {        
-        HiddenBlock hb = new HiddenBlock(loc, type);
+        int id = numBlocks + 1;
+        numBlocks++;
+        
+        HiddenBlock hb = new HiddenBlock(id, loc, type);
         hiddenBlocks.add(hb);
         
-        /*
-        * Reserved for adding data to new config
-        */
+        plugin.getConfig().set("Blocks." + id + ".location", serializeLoc(loc));
+        plugin.getConfig().set("Blocks." + id + ".type", type);
+        plugin.getConfig().set("Blocks." + id + ".foundBy", hb.getFoundBy());
+        
+        List<Integer> list = plugin.getConfig().getIntegerList("Blocks.Blocks");
+        list.add(id);
+        plugin.getConfig().set("Blocks.Blocks", list);
+        plugin.saveConfig();
         
         return hb;
     }
@@ -90,7 +102,11 @@ public class BlockManager {
      * @return The Hidden Block.
      */
     public HiddenBlock reloadBlock(Location loc) {
-        HiddenBlock hb = new HiddenBlock(loc, loc.getBlock().getType());
+        int id = numBlocks + 1;
+        numBlocks++;
+        
+        HiddenBlock hb = new HiddenBlock(id, loc, loc.getBlock().getType());
+        hb.setFoundBy(plugin.getConfig().getStringList("Blocks." + id + ".foundBy"));
         hiddenBlocks.add(hb);
         
         return hb;
@@ -118,9 +134,12 @@ public class BlockManager {
         
         hiddenBlocks.remove(hb);
         
-        /*
-        * Reserved for removing data from new config
-        */
+        plugin.getConfig().set("Blocks." + hb.getType(), null);
+        
+        List<Integer> list = plugin.getConfig().getIntegerList("Blocks.Blocks");
+        list.remove(hb.getID());
+        plugin.getConfig().set("Blocks.Blocks", list);
+        plugin.saveConfig();
     }
     
     /**
@@ -136,6 +155,9 @@ public class BlockManager {
         }
         
         hb.addFound(p.getUniqueId().toString());
+        
+        plugin.getConfig().set("Blocks." + hb.getType() + ".foundBy", hb.getFoundBy());
+        plugin.saveConfig();
     }
     
     /**
@@ -151,16 +173,25 @@ public class BlockManager {
         }
         
         hb.removeFound(p.getUniqueId().toString());
+        
+        plugin.getConfig().set("Blocks." + hb.getType() + ".foundBy", hb.getFoundBy());
+        plugin.saveConfig();
     }
     
     /**
-     * Loads the blocks from a database into memory.
+     * Loads the blocks from a file into memory.
      */
     public void loadBlocks() {
+        numBlocks = 0;
         
-        /*
-        * Reserved for getting data from new config
-        */
+        if (plugin.getConfig().getIntegerList("Blocks.Blocks").isEmpty()) {
+            return;
+        }
+        
+        for (int i : plugin.getConfig().getIntegerList("Blocks.Blocks")) {
+            HiddenBlock hb = reloadBlock(deserializeLoc(plugin.getConfig().getString("Blocks." + i + ".location")));
+            hb.setID(i);
+        }
     }
     
     public String serializeLoc(Location loc) {
