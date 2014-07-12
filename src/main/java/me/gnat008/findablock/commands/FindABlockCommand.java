@@ -24,7 +24,6 @@ import java.util.Map;
 import me.gnat008.findablock.FindABlockPlugin;
 import me.gnat008.findablock.configuration.ConfigAccessManager;
 import me.gnat008.findablock.managers.BlockManager;
-import me.gnat008.findablock.managers.HiddenBlock;
 import me.gnat008.findablock.util.Printer;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
@@ -276,21 +275,13 @@ public class FindABlockCommand implements CommandExecutor {
     }
     
     private void remove(Player player, String bset) {
-        for (HiddenBlock hb : blockManager.getHiddenBlocks()) {
-            if (hb.getType() == Material.valueOf(bset.toUpperCase())) {
-                hb.getLocation().getWorld().getBlockAt(hb.getLocation()).setType(Material.AIR);
-                blockManager.removeBlock(hb.getLocation());
-            }
-        }
+        blockManager.removeBlocks(bset);
         
         printer.printToPlayer(player, "Blocks have been removed!", false);
     }
     
     private void remove(Player player) {
-        for (HiddenBlock hb : blockManager.getHiddenBlocks()) {
-            hb.getLocation().getWorld().getBlockAt(hb.getLocation()).setType(Material.AIR);
-            blockManager.removeBlock(hb.getLocation());
-        }
+        blockManager.removeBlocks();
         
         printer.printToPlayer(player, "All blocks have been removed!", false);
     }

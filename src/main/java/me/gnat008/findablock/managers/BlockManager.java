@@ -18,6 +18,7 @@
 package me.gnat008.findablock.managers;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import me.gnat008.findablock.FindABlockPlugin;
 import me.gnat008.findablock.util.ColorUtil;
@@ -108,7 +109,10 @@ public class BlockManager {
         int id = numBlocks;
         numBlocks++;
         
-        HiddenBlock hb = new HiddenBlock(id, loc, loc.getBlock().getType(), ColorUtil.getColor(loc.getBlock()));
+        HiddenBlock hb = new HiddenBlock(id,
+                loc, 
+                loc.getBlock().getType(), 
+                ColorUtil.getColor(loc.getBlock()));
         hb.setFoundBy(plugin.getBlocksConfig().getConfig().getStringList("Blocks." + id + ".foundBy"));
         hiddenBlocks.add(hb);
         
@@ -145,14 +149,46 @@ public class BlockManager {
         plugin.getBlocksConfig().saveConfig();
     }
     
+    public void removeBlocks(String type) {
+        Iterator itr = hiddenBlocks.listIterator();
+        while (itr.hasNext()) {
+            HiddenBlock hb = (HiddenBlock) itr.next();
+            if (hb.getType() == Material.valueOf(type.toUpperCase())) {
+                itr.remove();
+                
+                plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getID(), null);
+        
+                List<Integer> list = plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks");
+                list.remove(hb.getID());
+                plugin.getBlocksConfig().getConfig().set("Blocks.Blocks", list);
+                plugin.getBlocksConfig().saveConfig();
+            }
+        }
+    }
+    
+    public void removeBlocks() {
+        Iterator itr = hiddenBlocks.listIterator();
+        while (itr.hasNext()) {
+            HiddenBlock hb = (HiddenBlock) itr.next();
+            
+            plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getID(), null);
+        
+            List<Integer> list = plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks");
+            list.remove(hb.getID());
+            plugin.getBlocksConfig().getConfig().set("Blocks.Blocks", list);
+            plugin.getBlocksConfig().saveConfig();
+            
+            itr.remove();
+        }
+    }
+    
     /**
      * Adds a player to a block's List of players that have found the block.
      * 
      * @param p The Player who found the block.
-     * @param loc The location of the block.
+     * @param hb The found block.
      */
-    public void addFound(Player p, Location loc) {
-        HiddenBlock hb = getHiddenBlock(loc);
+    public void addFound(Player p, HiddenBlock hb) {
         if (hb == null) {
             return;
         }
@@ -167,10 +203,9 @@ public class BlockManager {
      * Removes a player from a block's List of players that have found the block.
      * 
      * @param p The player we are removing.
-     * @param loc The location of the block
+     * @param hb The found block.
      */
-    public void removeFound(Player p, Location loc) {
-        HiddenBlock hb = getHiddenBlock(loc);
+    public void removeFound(Player p, HiddenBlock hb) {
         if (hb == null) {
             return;
         }
@@ -195,6 +230,14 @@ public class BlockManager {
             HiddenBlock hb = reloadBlock(deserializeLoc(plugin.getBlocksConfig().getConfig().getString("Blocks." + i + ".location")));
             hb.setID(i);
         }
+    }
+    
+    /**
+     * Called from the main plugin via the onDisable() method.
+     */
+    public void unload() {
+        plugin.getBlocksConfig().saveConfig();
+        hiddenBlocks.clear();
     }
     
     public String serializeLoc(Location loc) {

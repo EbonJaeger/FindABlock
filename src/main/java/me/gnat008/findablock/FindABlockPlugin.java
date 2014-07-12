@@ -77,6 +77,11 @@ public class FindABlockPlugin extends JavaPlugin {
         // Load blocks from the blocks config file
         BlockManager.getManager(this).loadBlocks();
     }
+    
+    @Override
+    public void onDisable() {
+        BlockManager.getManager(this).unload();
+    }
 
     public boolean hasPermission(Player player, String type) {
         return player.hasPermission("findablock." + type);

@@ -62,7 +62,7 @@ public class PlayerInteractListener implements Listener {
         if (blockManager.getHiddenBlock(location) != null) {
             HiddenBlock hb = blockManager.getHiddenBlock(location);
             if (!(hb.getFoundBy().contains(player.getUniqueId().toString()))) {
-                hb.addFound(player.getUniqueId().toString());
+                blockManager.addFound(player, hb);
                 printer.printToPlayer(player, "You have found a hidden block!", false);
                 
                 int numFound = 1;
