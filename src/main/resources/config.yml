@@ -1,0 +1,12 @@
+blocks:
+  wool:
+    enabled: true
+    blacklist: []
+  clay:
+    enabled: true
+    blacklist: []
+  glass:
+    enabled: true
+    blacklist: []
+reward:
+- IRON_INGOT:32

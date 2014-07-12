@@ -17,7 +17,6 @@
 
 package me.gnat008.findablock;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import me.gnat008.findablock.commands.FindABlockCommand;
@@ -96,21 +95,18 @@ public class FindABlockPlugin extends JavaPlugin {
     }
     
     public void setupConfiguration() {
-        this.config = new ConfigAccessManager(this, "config.yml");        
+        this.config = new ConfigAccessManager(this, "config.yml");
         config.saveDefaultConfig();
         
         // Load the configuration values into memory
-        woolEnabled = config.getConfig().getBoolean("blocks.wool.enabled", true);
-        woolBlacklist = (List<String>) config.getConfig().getList("blocks.wool.blacklist", new ArrayList<String>());
-        clayEnabled = config.getConfig().getBoolean("blocks.clay.enabled", true);
-        clayBlacklist = (List<String>) config.getConfig().getList("blocks.clay.enabled", new ArrayList<String>());
-        glassEnabled = config.getConfig().getBoolean("blocks.glass.enabled", true);
-        glassBlacklist = (List<String>) config.getConfig().getList("blocks.glass.blacklist", new ArrayList<String>());
+        woolEnabled = config.getConfig().getBoolean("blocks.wool.enabled");
+        woolBlacklist = config.getConfig().getStringList("blocks.wool.blacklist");
+        clayEnabled = config.getConfig().getBoolean("blocks.clay.enabled");
+        clayBlacklist = config.getConfig().getStringList("blocks.clay.enabled");
+        glassEnabled = config.getConfig().getBoolean("blocks.glass.enabled");
+        glassBlacklist = config.getConfig().getStringList("blocks.glass.blacklist");
+        reward = config.getConfig().getStringList("reward");
         
-        List<String> def = new ArrayList<String>();
-        def.add("IRON_INGOT:32");
-        reward = (List<String>) config.getConfig().getList("reward", def);
-        
-        config.saveConfig();
+        config.reloadConfig();
     }
 }

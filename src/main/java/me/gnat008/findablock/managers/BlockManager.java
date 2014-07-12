@@ -20,7 +20,9 @@ package me.gnat008.findablock.managers;
 import java.util.ArrayList;
 import java.util.List;
 import me.gnat008.findablock.FindABlockPlugin;
+import me.gnat008.findablock.util.ColorUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -73,17 +75,19 @@ public class BlockManager {
      * 
      * @param loc The location of the block.
      * @param type The block's Material.
+     * @param color The block's color.
      * @return The created Hidden Block.
      */
-    public HiddenBlock createBlock(Location loc, Material type) {        
-        int id = numBlocks + 1;
+    public HiddenBlock createBlock(Location loc, Material type, Color color) {        
+        int id = numBlocks;
         numBlocks++;
         
-        HiddenBlock hb = new HiddenBlock(id, loc, type);
+        HiddenBlock hb = new HiddenBlock(id, loc, type, color);
         hiddenBlocks.add(hb);
         
         plugin.getBlocksConfig().getConfig().set("Blocks." + id + ".location", serializeLoc(loc));
-        plugin.getBlocksConfig().getConfig().set("Blocks." + id + ".type", type);
+        plugin.getBlocksConfig().getConfig().set("Blocks." + id + ".type", type.toString());
+        plugin.getBlocksConfig().getConfig().set("Blocks." + id + ".color", color);
         plugin.getBlocksConfig().getConfig().set("Blocks." + id + ".foundBy", hb.getFoundBy());
         
         List<Integer> list = plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks");
@@ -101,10 +105,10 @@ public class BlockManager {
      * @return The Hidden Block.
      */
     public HiddenBlock reloadBlock(Location loc) {
-        int id = numBlocks + 1;
+        int id = numBlocks;
         numBlocks++;
         
-        HiddenBlock hb = new HiddenBlock(id, loc, loc.getBlock().getType());
+        HiddenBlock hb = new HiddenBlock(id, loc, loc.getBlock().getType(), ColorUtil.getColor(loc.getBlock()));
         hb.setFoundBy(plugin.getBlocksConfig().getConfig().getStringList("Blocks." + id + ".foundBy"));
         hiddenBlocks.add(hb);
         
@@ -133,7 +137,7 @@ public class BlockManager {
         
         hiddenBlocks.remove(hb);
         
-        plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getType(), null);
+        plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getID(), null);
         
         List<Integer> list = plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks");
         list.remove(hb.getID());
@@ -155,7 +159,7 @@ public class BlockManager {
         
         hb.addFound(p.getUniqueId().toString());
         
-        plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getType() + ".foundBy", hb.getFoundBy());
+        plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getID() + ".foundBy", hb.getFoundBy());
         plugin.getBlocksConfig().saveConfig();
     }
     
@@ -173,7 +177,7 @@ public class BlockManager {
         
         hb.removeFound(p.getUniqueId().toString());
         
-        plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getType() + ".foundBy", hb.getFoundBy());
+        plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getID() + ".foundBy", hb.getFoundBy());
         plugin.getBlocksConfig().saveConfig();
     }
     

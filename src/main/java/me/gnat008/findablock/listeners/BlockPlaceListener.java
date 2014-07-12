@@ -20,8 +20,10 @@ package me.gnat008.findablock.listeners;
 import me.gnat008.findablock.FindABlockPlugin;
 import me.gnat008.findablock.managers.BlockManager;
 import me.gnat008.findablock.managers.HiddenBlock;
+import me.gnat008.findablock.util.ColorUtil;
 import me.gnat008.findablock.util.Printer;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -57,19 +59,20 @@ public class BlockPlaceListener implements Listener {
             Block block = event.getBlockPlaced();
             Location location = block.getLocation();
             Material type = block.getType();
+            Color color = ColorUtil.getColor(block);
             
             boolean duplicate = false;
             for (HiddenBlock hb : blockManager.getHiddenBlocks()) {
-                if (hb.getType() == type) {
+                if (hb.getType() == type && hb.getColor() == color) {
                     duplicate = true;
-                    printer.printToPlayer(player, "A " + ChatColor.WHITE + type.toString() + ChatColor.RED + 
+                    printer.printToPlayer(player, "A " + ChatColor.WHITE + color.toString() + "_" + type.toString() + ChatColor.RED + 
                             " was already placed!", true);
                     break;
                 }
             }
             
             if (!duplicate) {
-                blockManager.createBlock(location, type);
+                blockManager.createBlock(location, type, color);
                 printer.printToPlayer(player, "Hidden block placed!", false);
             } else {
                 event.setCancelled(true);
