@@ -154,14 +154,16 @@ public class BlockManager {
         while (itr.hasNext()) {
             HiddenBlock hb = (HiddenBlock) itr.next();
             if (hb.getType() == Material.valueOf(type.toUpperCase())) {
-                itr.remove();
-                
                 plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getID(), null);
         
                 List<Integer> list = plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks");
                 list.remove(hb.getID());
                 plugin.getBlocksConfig().getConfig().set("Blocks.Blocks", list);
                 plugin.getBlocksConfig().saveConfig();
+                
+                Bukkit.getWorld(hb.getLocation().getWorld().getName()).getBlockAt(hb.getLocation()).setType(Material.AIR);
+                
+                itr.remove();
             }
         }
     }
@@ -174,12 +176,16 @@ public class BlockManager {
             plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getID(), null);
         
             List<Integer> list = plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks");
-            list.remove(hb.getID());
+            list.clear();
             plugin.getBlocksConfig().getConfig().set("Blocks.Blocks", list);
             plugin.getBlocksConfig().saveConfig();
             
+            Bukkit.getWorld(hb.getLocation().getWorld().getName()).getBlockAt(hb.getLocation()).setType(Material.AIR);
+            
             itr.remove();
         }
+        
+        numBlocks = 0;
     }
     
     /**

@@ -30,7 +30,7 @@ import org.bukkit.block.Block;
  */
 public class ColorUtil {
     
-    private static Set<Material> colorable = EnumSet.of(Material.WOOL, Material.CLAY, Material.GLASS);
+    private static Set<Material> colorable = EnumSet.of(Material.WOOL, Material.STAINED_CLAY, Material.STAINED_GLASS);
     
     public static Color getColor(Block block) {
         if (!colorable.contains(block.getType())) {

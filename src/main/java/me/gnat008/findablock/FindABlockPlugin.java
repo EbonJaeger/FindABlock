@@ -81,6 +81,7 @@ public class FindABlockPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         BlockManager.getManager(this).unload();
+        config.saveConfig();
     }
 
     public boolean hasPermission(Player player, String type) {

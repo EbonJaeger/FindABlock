@@ -271,6 +271,27 @@ public class FindABlockCommand implements CommandExecutor {
                     player.getInventory().addItem(is);
                 }
             }
+        } else if (bSet.equalsIgnoreCase("glass")) {
+            if (!(plugin.glassBlacklist.isEmpty())) {
+                for (String item : plugin.glassBlacklist) {
+                    String[] blacklistItem = item.split(":", 2);
+                    blacklist.put(Material.valueOf(blacklistItem[0]), Byte.valueOf(blacklistItem[1]));
+                }
+            }
+            
+            List<String> lore = new ArrayList<String>();
+            lore.add(ChatColor.GRAY + "[FindABlock]");
+            
+            for (DyeColor dyeColor : DyeColor.values()) {
+                if (!blacklist.containsValue(dyeColor.getDyeData())) {
+                    ItemStack is = new ItemStack(Material.STAINED_GLASS, 1, (short) dyeColor.getDyeData());
+                    ItemMeta meta = is.getItemMeta();
+                    meta.setLore(lore);
+                    is.setItemMeta(meta);
+                    
+                    player.getInventory().addItem(is);
+                }
+            }
         }
     }
     
