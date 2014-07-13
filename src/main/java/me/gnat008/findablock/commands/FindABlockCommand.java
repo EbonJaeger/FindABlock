@@ -213,8 +213,15 @@ public class FindABlockCommand implements CommandExecutor {
     private void reload(Player player) {
         try {
             plugin.getMainConfig().reloadConfig();
+            plugin.getMainConfig().saveConfig();
+            plugin.loadConfiguration();
         } catch (Throwable t) {
             printer.printToConsole("Error while reloading config: " + t.getMessage(), true);
+            if (player != null) {
+                printer.printToPlayer(player, "Error while reloading config.", true);
+            }
+            
+            return;
         }
 
         printer.printToConsole("Configuration reloaded successfully!", false);

@@ -63,7 +63,7 @@ public class PlayerInteractListener implements Listener {
             HiddenBlock hb = blockManager.getHiddenBlock(location);
             if (!(hb.getFoundBy().contains(player.getUniqueId().toString()))) {
                 blockManager.addFound(player, hb);
-                printer.printToPlayer(player, "You have found a hidden block!", false);
+                printer.printToPlayer(player, "You have found a hidden " + type + " block!", false);
                 
                 int numFound = 1;
                 int sameType = 1;
@@ -96,7 +96,8 @@ public class PlayerInteractListener implements Listener {
                     printer.printToPlayer(player, "Congratulations, you found all blocks of this type!", false);
                 }
             } else {
-                printer.printToPlayer(player, "You already found a " + ChatColor.WHITE + type + ChatColor.RED + "!", true);
+                printer.printToPlayer(player, "You already found a " + ChatColor.WHITE + hb.getColor().toString() + 
+                        "_" + type + ChatColor.RED + " block!", true);
             }
         }
     }

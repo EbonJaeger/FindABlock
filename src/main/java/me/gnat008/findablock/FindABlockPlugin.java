@@ -70,7 +70,7 @@ public class FindABlockPlugin extends JavaPlugin {
         getCommand("findablock").setExecutor(new FindABlockCommand(this));
         
         // Create/load the config files
-        setupConfiguration();
+        loadConfiguration();
         this.blocksConfig = new ConfigAccessManager(this, "blocks.yml");
         blocksConfig.saveConfig();
         
@@ -81,6 +81,7 @@ public class FindABlockPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         BlockManager.getManager(this).unload();
+        config.reloadConfig();
         config.saveConfig();
     }
 
@@ -100,7 +101,7 @@ public class FindABlockPlugin extends JavaPlugin {
         return printer;
     }
     
-    public void setupConfiguration() {
+    public void loadConfiguration() {
         this.config = new ConfigAccessManager(this, "config.yml");
         config.saveDefaultConfig();
         

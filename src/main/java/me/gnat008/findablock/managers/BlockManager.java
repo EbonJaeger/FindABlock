@@ -110,7 +110,7 @@ public class BlockManager {
         HiddenBlock hb;
         try {
             hb = new HiddenBlock(id, 
-                    deserializeLoc(plugin.getBlocksConfig().getConfig().getString("blocks." + id + ".location")), 
+                    deserializeLoc(plugin.getBlocksConfig().getConfig().getString("Blocks." + id + ".location")), 
                     Material.valueOf(plugin.getBlocksConfig().getConfig().getString("Blocks." + id + ".type")), 
                     DyeColor.valueOf(plugin.getBlocksConfig().getConfig().getString("Blocks." + id + ".color")));
             hb.setFoundBy(plugin.getBlocksConfig().getConfig().getStringList("Blocks." + id + ".foundBy"));
@@ -239,8 +239,7 @@ public class BlockManager {
         }
         
         for (int i : plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks")) {
-            HiddenBlock hb = reloadBlock(i);
-            hb.setID(i);
+            reloadBlock(i);
         }
     }
     
