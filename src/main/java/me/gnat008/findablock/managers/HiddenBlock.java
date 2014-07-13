@@ -19,7 +19,7 @@ package me.gnat008.findablock.managers;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.bukkit.Color;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
@@ -34,10 +34,10 @@ public class HiddenBlock {
     private int id;
     private Location location;
     private Material type;
-    private Color color;
+    private DyeColor color;
     private List<String> foundBy;
     
-    public HiddenBlock(int id, Location location, Material type, Color color) {
+    public HiddenBlock(int id, Location location, Material type, DyeColor color) {
         this.id = id;
         this.location = location;
         this.type = type;
@@ -78,7 +78,7 @@ public class HiddenBlock {
      * 
      * @return The block's color.
      */
-    public Color getColor() {
+    public DyeColor getColor() {
         return this.color;
     }
     

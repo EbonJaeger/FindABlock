@@ -19,7 +19,6 @@ package me.gnat008.findablock.util;
 
 import java.util.EnumSet;
 import java.util.Set;
-import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -32,12 +31,12 @@ public class ColorUtil {
     
     private static Set<Material> colorable = EnumSet.of(Material.WOOL, Material.STAINED_CLAY, Material.STAINED_GLASS);
     
-    public static Color getColor(Block block) {
+    public static DyeColor getColor(Block block) {
         if (!colorable.contains(block.getType())) {
             throw new IllegalArgumentException("Material is not colorable!");
         }
         
         Byte data = block.getData();
-        return DyeColor.getByDyeData(data).getColor();
+        return DyeColor.getByDyeData(data);
     }
 }

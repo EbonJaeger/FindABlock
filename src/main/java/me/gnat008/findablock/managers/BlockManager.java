@@ -20,10 +20,10 @@ package me.gnat008.findablock.managers;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import me.gnat008.findablock.FindABlockPlugin;
-import me.gnat008.findablock.util.ColorUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -79,7 +79,7 @@ public class BlockManager {
      * @param color The block's color.
      * @return The created Hidden Block.
      */
-    public HiddenBlock createBlock(Location loc, Material type, Color color) {        
+    public HiddenBlock createBlock(Location loc, Material type, DyeColor color) {        
         int id = numBlocks;
         numBlocks++;
         
@@ -88,7 +88,7 @@ public class BlockManager {
         
         plugin.getBlocksConfig().getConfig().set("Blocks." + id + ".location", serializeLoc(loc));
         plugin.getBlocksConfig().getConfig().set("Blocks." + id + ".type", type.toString());
-        plugin.getBlocksConfig().getConfig().set("Blocks." + id + ".color", color);
+        plugin.getBlocksConfig().getConfig().set("Blocks." + id + ".color", color.toString());
         plugin.getBlocksConfig().getConfig().set("Blocks." + id + ".foundBy", hb.getFoundBy());
         
         List<Integer> list = plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks");
@@ -100,21 +100,27 @@ public class BlockManager {
     }
     
     /**
-     * Reloads a block from a location into memory.
+     * Reloads a block from a location into memory. Returns null if data is not
+     * found.
      * 
-     * @param loc The location of the block.
-     * @return The Hidden Block.
+     * @param id The block's ID.
+     * @return The Hidden Block, or null.
      */
-    public HiddenBlock reloadBlock(Location loc) {
-        int id = numBlocks;
-        numBlocks++;
+    public HiddenBlock reloadBlock(int id) {
+        HiddenBlock hb;
+        try {
+            hb = new HiddenBlock(id, 
+                    deserializeLoc(plugin.getBlocksConfig().getConfig().getString("blocks." + id + ".location")), 
+                    Material.valueOf(plugin.getBlocksConfig().getConfig().getString("Blocks." + id + ".type")), 
+                    DyeColor.valueOf(plugin.getBlocksConfig().getConfig().getString("Blocks." + id + ".color")));
+            hb.setFoundBy(plugin.getBlocksConfig().getConfig().getStringList("Blocks." + id + ".foundBy"));
+        } catch (IllegalArgumentException ex) {
+            plugin.getLogger().log(Level.SEVERE, ex.getMessage());
+            return null;
+        }
         
-        HiddenBlock hb = new HiddenBlock(id,
-                loc, 
-                loc.getBlock().getType(), 
-                ColorUtil.getColor(loc.getBlock()));
-        hb.setFoundBy(plugin.getBlocksConfig().getConfig().getStringList("Blocks." + id + ".foundBy"));
         hiddenBlocks.add(hb);
+        numBlocks++;
         
         return hb;
     }
@@ -233,7 +239,7 @@ public class BlockManager {
         }
         
         for (int i : plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks")) {
-            HiddenBlock hb = reloadBlock(deserializeLoc(plugin.getBlocksConfig().getConfig().getString("Blocks." + i + ".location")));
+            HiddenBlock hb = reloadBlock(i);
             hb.setID(i);
         }
     }
