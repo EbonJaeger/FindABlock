@@ -163,7 +163,7 @@ public class BlockManager {
                 plugin.getBlocksConfig().getConfig().set("Blocks." + hb.getID(), null);
         
                 List<Integer> list = plugin.getBlocksConfig().getConfig().getIntegerList("Blocks.Blocks");
-                list.remove(hb.getID());
+                list.remove(hb.getID()); // Causing problems because of how the remove(int index) method works.
                 plugin.getBlocksConfig().getConfig().set("Blocks.Blocks", list);
                 plugin.getBlocksConfig().saveConfig();
                 

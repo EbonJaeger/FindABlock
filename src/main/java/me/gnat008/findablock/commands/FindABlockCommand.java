@@ -18,9 +18,7 @@
 package me.gnat008.findablock.commands;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import me.gnat008.findablock.FindABlockPlugin;
 import me.gnat008.findablock.configuration.ConfigAccessManager;
 import me.gnat008.findablock.managers.BlockManager;
@@ -232,73 +230,79 @@ public class FindABlockCommand implements CommandExecutor {
 
     @SuppressWarnings("deprecation")
     private void set(Player player, String bSet) {
-        Map<Material, Byte> blacklist = new HashMap<Material, Byte>();
-
+        boolean done = false;
+        List<String> lore = new ArrayList<String>();
+        lore.add(ChatColor.GRAY + "[FindABlock]");
+        
         if (bSet.equalsIgnoreCase("wool")) {
-            if (plugin.woolBlacklist.size() < 1) {
+            System.out.println("debug: is wool");
+            List<Byte> blackList = new ArrayList<Byte>();
+            if (!(plugin.woolBlacklist.isEmpty())) {
+                System.out.println("debug: blackList not empty");
                 for (String item : plugin.woolBlacklist) {
-                    String[] blackListItem = item.split(":", 2);
-                    blacklist.put(Material.valueOf(blackListItem[0]), Byte.valueOf(blackListItem[1]));
+                    blackList.add(Byte.valueOf(item));
                 }
             }
 
-            List<String> lore = new ArrayList<String>();
-            lore.add(ChatColor.GRAY + "[FindABlock]");
-
             for (DyeColor dyeColor : DyeColor.values()) {
-                if (!blacklist.containsValue(dyeColor.getDyeData())) {
+                if (!(blackList.contains(dyeColor.getDyeData()))) {
                     ItemStack is = new ItemStack(Material.WOOL, 1, (short) dyeColor.getDyeData());
-
                     ItemMeta meta = is.getItemMeta();
                     meta.setLore(lore);
                     is.setItemMeta(meta);
 
                     player.getInventory().addItem(is);
+                    done = false;
                 }
+                
+                done = true;
             }
         } else if (bSet.equalsIgnoreCase("clay")) {
-            if (!(plugin.clayBlacklist.contains(null))) {
+            List<Byte> blackList = new ArrayList<Byte>();
+            if (!(plugin.clayBlacklist.isEmpty())) {
                 for (String item : plugin.clayBlacklist) {
-                    String[] blacklistItem = item.split(":", 2);
-                    blacklist.put(Material.valueOf(blacklistItem[0]), Byte.valueOf(blacklistItem[1]));
+                    blackList.add(Byte.valueOf(item));
                 }
             }
 
-            List<String> lore = new ArrayList<String>();
-            lore.add(ChatColor.GRAY + "[FindABlock]");
-
             for (DyeColor dyeColor : DyeColor.values()) {
-                if (!blacklist.containsValue(dyeColor.getDyeData())) {
+                if (!(blackList.contains(dyeColor.getDyeData()))) {
                     ItemStack is = new ItemStack(Material.STAINED_CLAY, 1, (short) dyeColor.getDyeData());
-
                     ItemMeta meta = is.getItemMeta();
                     meta.setLore(lore);
                     is.setItemMeta(meta);
 
                     player.getInventory().addItem(is);
+                    done = false;
                 }
+                
+                done = true;
             }
         } else if (bSet.equalsIgnoreCase("glass")) {
+            List<Byte> blackList = new ArrayList<Byte>();
             if (!(plugin.glassBlacklist.isEmpty())) {
                 for (String item : plugin.glassBlacklist) {
-                    String[] blacklistItem = item.split(":", 2);
-                    blacklist.put(Material.valueOf(blacklistItem[0]), Byte.valueOf(blacklistItem[1]));
+                    blackList.add(Byte.valueOf(item));
                 }
             }
             
-            List<String> lore = new ArrayList<String>();
-            lore.add(ChatColor.GRAY + "[FindABlock]");
-            
             for (DyeColor dyeColor : DyeColor.values()) {
-                if (!blacklist.containsValue(dyeColor.getDyeData())) {
+                if (!(blackList.contains(dyeColor.getDyeData()))) {
                     ItemStack is = new ItemStack(Material.STAINED_GLASS, 1, (short) dyeColor.getDyeData());
                     ItemMeta meta = is.getItemMeta();
                     meta.setLore(lore);
                     is.setItemMeta(meta);
                     
                     player.getInventory().addItem(is);
+                    done = false;
                 }
+                
+                done = true;
             }
+        }
+        
+        if (done) {
+            printer.printToPlayer(player, "Here are your Hidden Blocks!", false);
         }
     }
     

@@ -81,7 +81,6 @@ public class FindABlockPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         BlockManager.getManager(this).unload();
-        config.reloadConfig();
         config.saveConfig();
     }
 
@@ -109,7 +108,7 @@ public class FindABlockPlugin extends JavaPlugin {
         woolEnabled = config.getConfig().getBoolean("blocks.wool.enabled");
         woolBlacklist = config.getConfig().getStringList("blocks.wool.blacklist");
         clayEnabled = config.getConfig().getBoolean("blocks.clay.enabled");
-        clayBlacklist = config.getConfig().getStringList("blocks.clay.enabled");
+        clayBlacklist = config.getConfig().getStringList("blocks.clay.blacklist");
         glassEnabled = config.getConfig().getBoolean("blocks.glass.enabled");
         glassBlacklist = config.getConfig().getStringList("blocks.glass.blacklist");
         reward = config.getConfig().getStringList("reward");

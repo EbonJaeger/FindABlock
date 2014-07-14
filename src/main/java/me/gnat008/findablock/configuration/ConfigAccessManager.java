@@ -19,7 +19,8 @@ package me.gnat008.findablock.configuration;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.logging.Level;
 import me.gnat008.findablock.FindABlockPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -50,13 +51,24 @@ public class ConfigAccessManager {
     }
     
     public void reloadConfig() {
+        if (configFile == null) {
+            configFile = new File(plugin.getDataFolder(), filename);
+        }
+        
         fileConfiguration = YamlConfiguration.loadConfiguration(configFile);
         
-        // Look for any defaults in the Jar file
-        InputStream defConfigStream = plugin.getResource(filename);
-        if (defConfigStream != null) {
-            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
-            fileConfiguration.setDefaults(defConfig);
+        // Looks for defaults in the Jar
+        Reader configStream;
+        try {
+            configStream = new InputStreamReader(plugin.getResource(filename), "UTF8");
+            if (configStream != null) {
+                YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(configStream);
+                fileConfiguration.setDefaults(defConfig);
+                
+                configStream.close();
+            }
+        } catch (IOException ex) {
+            plugin.getLogger().log(Level.SEVERE, "There was a problem: " + ex.getMessage());
         }
     }
     

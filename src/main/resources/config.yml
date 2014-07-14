@@ -9,4 +9,4 @@ blocks:
     enabled: true
     blacklist: []
 reward:
-- IRON_INGOT:32
+- 'IRON_INGOT:32'
